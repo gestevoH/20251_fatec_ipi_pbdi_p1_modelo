@@ -68,27 +68,54 @@
 -- ----------------------------------------------------------------
 -- 4 Salário versus estudos
 --escreva a sua solução aqui
-DO $$
-DECLARE
-    cur_prep CURSOR FOR
-        SELECT * FROM student_prediction
-        WHERE salary = 5 AND prep_exam = 2;
-    tupla RECORD;
-    qtd_prep INT := 0;
-BEGIN
-    OPEN cur_prep;
-    FETCH cur_prep INTO tupla; 
-	    WHILE FOUND LOOP
-	        qtd_prep := qtd_prep + 1;
-	        FETCH cur_prep INTO tupla;
-	    END LOOP;
-    CLOSE cur_prep;
-    RAISE NOTICE 'Alunos com salario maior que 410: %', qtd_prep;
-END;
-$$
+
+-- DO $$
+-- DECLARE
+--     cur_prep CURSOR FOR
+--         SELECT * FROM student_prediction
+--         WHERE salary = 5 AND prep_exam = 2;
+--     tupla RECORD;
+--     qtd_prep INT := 0;
+-- BEGIN
+--     OPEN cur_prep;
+--     FETCH cur_prep INTO tupla; 
+-- 	    WHILE FOUND LOOP
+-- 	        qtd_prep := qtd_prep + 1;
+-- 	        FETCH cur_prep INTO tupla;
+-- 	    END LOOP;
+--     CLOSE cur_prep;
+--     RAISE NOTICE 'Alunos com salario maior que 410: %', qtd_prep;
+-- END;
+-- $$
 
 -- ----------------------------------------------------------------
 -- 5. Limpeza de valores NULL
 --escreva a sua solução aqui
+
+DO $$
+DECLARE
+	cur_delete REFCURSOR;
+	tupla RECORD;
+BEGIN
+	OPEN cur_delete SCROLL FOR
+	SELECT
+	*
+	FROM
+	student_prediction;
+		LOOP
+			FETCH cur_delete INTO tupla;
+			EXIT WHEN NOT FOUND;
+			IF tupla.grade IS NULL THEN
+			DELETE FROM student_prediction WHERE CURRENT OF cur_delete;
+			END IF;
+		END LOOP;
+		LOOP
+			FETCH BACKWARD FROM cur_delete INTO tupla;
+			EXIT WHEN NOT FOUND;
+			RAISE NOTICE '%', tupla;
+		END LOOP;
+	CLOSE cur_delete;
+END;
+$$
 
 -- ----------------------------------------------------------------
