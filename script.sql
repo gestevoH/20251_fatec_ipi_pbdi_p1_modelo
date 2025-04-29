@@ -45,34 +45,45 @@
 -- 3 Resultado em função dos estudos
 --escreva a sua solução aqui
 
-DO $$
-DECLARE
-    cur_aprov_so REFCURSOR;
-    qtd_aprov INT;
-    tabela VARCHAR(100) := 'student_prediction';
-BEGIN
-    OPEN cur_aprov_so FOR EXECUTE format(
-	        'SELECT COUNT(*) FROM %I WHERE grade >= 6 AND prep_study = 1',
-	        tabela
-	    );
-	    FETCH cur_aprov_so INTO qtd_aprov;
-    CLOSE cur_aprov_so;
-    IF qtd_aprov = 0 THEN
-        RAISE NOTICE '%', -1;
-    ELSE
-        RAISE NOTICE 'Resultado: %', qtd_aprov;
-    END IF;
-END 
-$$;
+-- DO $$
+-- DECLARE
+--     cur_aprov_so REFCURSOR;
+--     qtd_aprov INT;
+--     tabela VARCHAR(100) := 'student_prediction';
+-- BEGIN
+--     OPEN cur_aprov_so FOR EXECUTE format(
+-- 	        'SELECT COUNT(*) FROM %I WHERE grade >= 6 AND prep_study = 1',
+-- 	        tabela
+-- 	    );
+-- 	    FETCH cur_aprov_so INTO qtd_aprov;
+--     CLOSE cur_aprov_so;
+--     IF qtd_aprov = 0 THEN
+--         RAISE NOTICE '%', -1;
+--     ELSE
+--         RAISE NOTICE 'Resultado: %', qtd_aprov;
+--     END IF;
+-- END 
+-- $$;
 
 -- ----------------------------------------------------------------
 -- 4 Salário versus estudos
 --escreva a sua solução aqui
 DO $$
 DECLARE
-
+    cur_prep CURSOR FOR
+        SELECT * FROM student_prediction
+        WHERE salary = 5 AND prep_exam = 2;
+    tupla RECORD;
+    qtd_prep INT := 0;
 BEGIN
-
+    OPEN cur_prep;
+    FETCH cur_prep INTO tupla; 
+	    WHILE FOUND LOOP
+	        qtd_prep := qtd_prep + 1;
+	        FETCH cur_prep INTO tupla;
+	    END LOOP;
+    CLOSE cur_prep;
+    RAISE NOTICE 'Alunos com salario maior que 410: %', qtd_prep;
 END;
 $$
 
